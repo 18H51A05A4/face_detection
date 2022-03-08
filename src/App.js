@@ -60,7 +60,8 @@ function App() {
     
     const input = tf.tidy(() => {
       return tf.image.resizeBilinear(tf.browser.fromPixels(photoRef.current), [1280, 1280])
-        .div(255.0).expandDims(0); });
+        .div(255.0).expandDims(0); 
+      });
     
     console.log(input)
 
@@ -69,6 +70,7 @@ function App() {
       const font = "16px sans-serif";
       ctx.font = font;
       ctx.textBaseline = "top";
+      
 
       const [boxes, scores, classes, valid_detections] = res;
       const boxes_data = boxes.dataSync();
@@ -156,6 +158,7 @@ function App() {
       <video ref={videoRef}></video>
       <button onClick={takePhoto}>snap</button>
     </div>
+
     <div className='result'>
       <canvas ref={photoRef}></canvas>
     </div>
