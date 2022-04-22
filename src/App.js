@@ -8,6 +8,8 @@ const weights = '/model/model.json';
 function App() {
 
   var model=null
+  // const [face_image_url,set_face_image_url] = useState('')
+  let base64_face_url = null;
 
   const videoRef=useRef(null);
   const photoRef=useRef(null);
@@ -48,6 +50,7 @@ function App() {
     let video=videoRef.current;
     let photo=photoRef.current;
     let face=faceRef.current;
+
 
 
     photo.width=width
@@ -112,8 +115,25 @@ function App() {
         ctx1.drawImage(photoRef.current, x1, y1, width, height,
           0, 0, width, height);
         
-      
-  
+          let face_image_url=''
+          let handlePhotoDownload = () => {
+            console.log("Photo1 downloaded");
+            const photoCanvas = document.getElementById("faceCanvas");
+            console.log(photoCanvas);
+            if (photoCanvas) {
+              console.log("Photo2 downloaded");
+              face_image_url=photoCanvas.toDataURL("image/png");
+             // const link = document.createElement("a");
+              console.log(face_image_url);
+              base64_face_url = face_image_url
+              // link.download = "face.png";
+              // link.href = url;
+              // link.click();
+              // console.log("Photo3 downloaded");
+            }
+          }
+          handlePhotoDownload()
+         
         // Draw the label background.
         ctx.fillStyle = "#00FFFF";
         const textWidth = ctx.measureText(klass + ":" + score).width;
@@ -145,18 +165,44 @@ function App() {
 
 
     })
+    
   }
   
+  const save_face_embeddings=()=>{
+    const data= new FormData()
+    data.append('image',base64_face_url)
+    fetch('http://localhost:5000/get_embeddings',{
+      method:"post",
+      body:data
+    })
+    .then(res=>res.json())
+    .then(data=>console.log(data))
+
+  }
+
+  const verify_face_embeddings=()=>{
+    const data= new FormData()
+    data.append('image',base64_face_url)
+    fetch('http://localhost:5000/verify',{
+      method:"post",
+      body:data
+    })
+    .then(res=>res.json())
+    .then(data=>console.log(data))
+  }
+
   return (
     
   <div className='App'>
-    <div className='extracted_face'>
+    <div className='extracted_face' style={{display:"None"}}>
       <canvas id='faceCanvas' ref={faceRef}></canvas>
     </div>
     
     <div className='camera'>
       <video ref={videoRef}></video>
       <button onClick={takePhoto}>snap</button>
+      <button onClick={save_face_embeddings}>save face mapping</button>
+      <button onClick={verify_face_embeddings}>verify face mapping</button>
     </div>
 
     <div className='result'>
