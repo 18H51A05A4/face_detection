@@ -18,9 +18,9 @@ function App() {
     if(z==0)
      is_registration = value
     else if(z==1)
-      user_id =  value 
+     username = value
     else if(z==2)
-      username = value
+      user_id =  value 
     else if(z==3)
       class_id = value
     else if(z==4)
