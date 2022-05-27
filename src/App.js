@@ -2,11 +2,15 @@ import logo from './logo.svg';
 import './App.css';
 import { useEffect, useRef, useState } from 'react';
 import * as tf from '@tensorflow/tfjs'
-
 const weights = '/model/model.json';
 
 function App() {
 
+  var value = window.location.href.split("?")[1]
+  var user_id = value.split('&')[1].split('=')[1]
+  var is_registration = value.split('&')[0].split('=')[1]
+  console.log(is_registration,user_id)
+  
   var model=null
   // const [face_image_url,set_face_image_url] = useState('')
   let base64_face_url = null;
@@ -116,6 +120,7 @@ function App() {
           0, 0, width, height);
         
           let face_image_url=''
+
           let handlePhotoDownload = () => {
             console.log("Photo1 downloaded");
             const photoCanvas = document.getElementById("faceCanvas");
@@ -168,27 +173,72 @@ function App() {
     
   }
   
+  // const save_face_embeddings=()=>{
+  //   const data= new FormData()
+  //   data.append('image',base64_face_url)
+  //   fetch('http://localhost:5000/get_embeddings',{
+  //     method:"post",
+  //     body:data
+  //   })
+  //   .then(res=>res.json())
+  //   .then(data=>console.log(data))
+
+  // }
+
   const save_face_embeddings=()=>{
-    const data= new FormData()
-    data.append('image',base64_face_url)
-    fetch('http://localhost:5000/get_embeddings',{
-      method:"post",
-      body:data
+
+    var request_body = {
+      username : user_id,
+      image : base64_face_url
+    }
+    fetch("http://127.0.0.1:8000/save-user-encodings-using-model",
+    {
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify(request_body)
     })
-    .then(res=>res.json())
+    .then(res=>res.json() )
     .then(data=>console.log(data))
+    .catch(res=>res.json() )
+    .then(data=>console.log(data))
+    
 
   }
 
+  // const verify_face_embeddings=()=>{
+  //   const data= new FormData()
+  //   data.append('image',base64_face_url)
+  //   fetch('http://localhost:5000/verify',{
+  //     method:"post",
+  //     body:data
+  //   })
+  //   .then(res=>res.json() )
+  //   .then(data=>console.log(data))
+  // }
+
   const verify_face_embeddings=()=>{
-    const data= new FormData()
-    data.append('image',base64_face_url)
-    fetch('http://localhost:5000/verify',{
-      method:"post",
-      body:data
+    
+    var request_body = {
+      username : user_id,
+      image : base64_face_url
+    }
+    fetch("http://127.0.0.1:8000/verify-user-encodings-using-model",
+    {
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify(request_body)
     })
-    .then(res=>res.json())
+    .then(res=>res.json() )
     .then(data=>console.log(data))
+    .catch(res=>res.json() )
+    .then(data=>console.log(data))
+
   }
 
   return (
@@ -201,8 +251,10 @@ function App() {
     <div className='camera'>
       <video ref={videoRef}></video>
       <button onClick={takePhoto}>snap</button>
+      {is_registration === 'true' ?
       <button onClick={save_face_embeddings}>save face mapping</button>
-      <button onClick={verify_face_embeddings}>verify face mapping</button>
+      :
+      <button onClick={verify_face_embeddings}>verify face mapping</button>}
     </div>
 
     <div className='result'>
