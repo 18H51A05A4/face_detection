@@ -6,11 +6,28 @@ const weights = '/model/model.json';
 
 function App() {
 
-  var value = window.location.href.split("?")[1]
-  var user_id = value.split('&')[1].split('=')[1]
-  var is_registration = value.split('&')[0].split('=')[1]
-  console.log(is_registration,user_id)
-  
+  // var value = window.location.href.split("?")[1]
+  var is_registration = null
+  var user_id = null
+  var username = null
+  var class_id = null
+  var is_joining = null
+  const urlParams = new URLSearchParams(window.location.search);
+  let z=0
+  for(const value of urlParams.values()){
+    if(z==0)
+     is_registration = value
+    else if(z==1)
+      user_id =  value 
+    else if(z==2)
+      username = value
+    else if(z==3)
+      class_id = value
+    else if(z==4)
+      is_joining =  true
+    z=z+1
+  }
+  console.log(is_registration,user_id,class_id)
   var model=null
   // const [face_image_url,set_face_image_url] = useState('')
   let base64_face_url = null;
@@ -188,7 +205,7 @@ function App() {
   const save_face_embeddings=()=>{
 
     var request_body = {
-      username : user_id,
+      username : username,
       image : base64_face_url
     }
     fetch("http://127.0.0.1:8000/save-user-encodings-using-model",
@@ -222,7 +239,10 @@ function App() {
   const verify_face_embeddings=()=>{
     
     var request_body = {
-      username : user_id,
+      user_id : user_id,
+      username : username,
+      class_id : class_id,
+      is_joining : is_joining,
       image : base64_face_url
     }
     fetch("http://127.0.0.1:8000/verify-user-encodings-using-model",
